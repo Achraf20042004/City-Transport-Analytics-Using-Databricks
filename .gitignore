@@ -1,0 +1,35 @@
+# secrets & local env
+.env
+.env.*
+!.env.example
+
+# python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# local databases (regenerate / download separately)
+auth.db
+good_gold.db
+*.db
+
+# IDE / OS junk
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# notebooks checkpoints if any land here
+.ipynb_checkpoints/
+
+# NiFi / local runtime (often contains credentials or machine paths)
+nifi-conf-backup.tar.gz
+login-identity-providers.xml
+login-identity-providers.xml.*
+docker-compose.yml
+*.tar.gz
