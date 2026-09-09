@@ -10,7 +10,7 @@ Small Streamlit app on top of city trip data. The heavy lifting (NiFi → MinIO 
 | Autoloader, bronze, silver, gold notebooks | Databricks workspace only |
 | Streamlit UI + LangChain agent | this folder |
 
-Gold Unity Catalog tables are loaded into a local SQLite file (`good_gold.db`) with a Databricks notebook script (pandas + `to_sql`), then the Streamlit app queries that file. On free tier you still copy `good_gold.db` from DBFS into this project folder after the notebook runs — the export itself is the script, not a hand-built database.
+Gold Unity Catalog tables are loaded into a local SQLite file (`good_gold.db`) with a Databricks notebook script (pandas + `to_sql`), then the Streamlit app queries that file. On free tier you still copy `good_gold.db` from DBFS into this project folder after the notebook runs : the export itself is the script, not a hand-built database.
 
 The app expects one SQLite table per city (`fait_chandigarh`, `fait_coimbatore`, …), matching `CITY_TABLES` in `agent.py`.
 
@@ -24,8 +24,8 @@ Source tables in Databricks look like `transportation.gold.fait_<city>`.
 
 Stored in `auth.db` (created by `set_up_auth.py`):
 
-- **manager** — creates `city_responsible` accounts and assigns a city
-- **city_responsible** — chat only against their own city’s table
+- **manager** : creates `city_responsible` accounts and assigns a city
+- **city_responsible** : chat only against their own city’s table
 
 Passwords are SHA-256 hashed. Don’t commit `auth.db`.
 
@@ -78,11 +78,11 @@ Model goes through OpenRouter (`langchain-openai`).
 
 ## Files
 
-- `app.py` — login UI, manager panel, city chatbot
-- `agent.py` — schema lookup, SQL generation, execution, answer
-- `set_up_auth.py` — creates `auth.db` + first manager user
-- `docker-compose.example.yml` — sample NiFi + MinIO stack (copy to `docker-compose.yml` and set your own passwords)
-- `.env` — local secrets (never push this)
+- `app.py` : login UI, manager panel, city chatbot
+- `agent.py` : schema lookup, SQL generation, execution, answer
+- `set_up_auth.py` : creates `auth.db` + first manager user
+- `docker-compose.example.yml` : sample NiFi + MinIO stack (copy to `docker-compose.yml` and set your own passwords)
+- `.env` : local secrets (never push this)
 
 ## Notes
 
