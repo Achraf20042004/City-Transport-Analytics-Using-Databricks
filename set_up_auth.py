@@ -21,8 +21,8 @@ try:
         ("admin", hash_pw("admin"), "manager", None)
     )
     conn.commit()
-    print("Manager account created: manager1 / changeme123")
+    print("Manager account created: admin / admin (change the password after setup)")
 except sqlite3.IntegrityError:
-    print("manager1 already exists, skipping.")
+    print("admin already exists, skipping.")
 
 conn.close()
