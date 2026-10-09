@@ -2,6 +2,7 @@ from langchain_openai import ChatOpenAI
 from dotenv import load_dotenv
 import os
 import sqlite3
+from functools import lru_cache
 
 load_dotenv(".env")
 
@@ -35,9 +36,37 @@ def get_city_schema(table_name):
         raise ValueError(f"Table '{table_name}' does not exist")
     return result[0]
 
+@lru_cache(maxsize=None)
+def get_column_values(table_name, max_distinct=20):
+    conn = sqlite3.connect("good_gold.db")
+    try:
+        columns = [
+            row[1] for row in conn.execute(f'PRAGMA table_info("{table_name}")')
+            if row[2].upper() == "TEXT"
+        ]
+        values = {}
+        for col in columns:
+            count = conn.execute(f'SELECT COUNT(DISTINCT "{col}") FROM "{table_name}"').fetchone()[0]
+            if 0 < count <= max_distinct:
+                rows = conn.execute(
+                    f'SELECT DISTINCT "{col}" FROM "{table_name}" WHERE "{col}" IS NOT NULL ORDER BY 1'
+                ).fetchall()
+                values[col] = [r[0] for r in rows]
+    finally:
+        conn.close()
+    return values
+
+def format_column_values(values):
+    lines = []
+    for col, vals in values.items():
+        shown = ", ".join(f"'{v}'" if isinstance(v, str) else str(v) for v in vals)
+        lines.append(f"- {col}: {shown}")
+    return "\n".join(lines)
+
 def generate_sql(question, city):
     table_name = CITY_TABLES[city]
     schema = get_city_schema(table_name)
+    column_values = format_column_values(get_column_values(table_name))
 
     prompt = f"""
 You are a SQL assistant for a city manager.
@@ -47,6 +76,13 @@ The manager is responsible ONLY for the city: {city}.
 The ONLY table you can use is:
 
 {schema}
+
+Known values for some columns (use them EXACTLY as written in WHERE clauses):
+{column_values}
+
+Formats:
+- business_date is stored as text 'YYYY-MM-DD'.
+- Boolean columns (is_weekday, is_weekend, national_holiday) are stored as 0 / 1.
 
 Rules:
 - Use ONLY the table shown above.
